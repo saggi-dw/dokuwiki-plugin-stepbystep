@@ -1,0 +1,55 @@
+/*
+Author:  Swimmer F (https://stackoverflow.com/users/12061972/swimmer-f)
+Link: https://stackoverflow.com/questions/66020524/collapsible-box-not-showing-all-of-my-text-in-html-and-css/66020964#66020964
+ */
+
+div.stepbystep {
+
+}
+
+div.stepbystep .collapsible {
+    background: @ini_background_neu;
+    color: @ini_text;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    height: auto;
+    border: @ini_link;
+    border-style: solid;
+    border-width: 1px 1px 0px 1px;
+
+}
+
+div.stepbystep .active,
+div.stepbystep .collapsible:hover {
+    background-color: @ini_link;
+    color: @ini_background;
+}
+
+div.stepbystep .collapsible:after {
+    content: '\002B';
+    color: @ini_background;
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+}
+
+div.stepbystep .active:after {
+    content: "\2212";
+}
+
+div.stepbystep .content {
+    padding: 0 18px;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+    background-color: @ini_background;
+    height: auto;
+    border: @ini_link;
+    border-style: solid;
+    border-width: 0px 1px 1px 1px;
+    max-height: 0;
+}

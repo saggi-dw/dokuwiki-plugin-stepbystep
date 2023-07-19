@@ -1,0 +1,7 @@
+base   stepbystep
+author saggi
+email  saggi@gmx.de
+date   2023-07-17
+name   StepByStep plugin
+desc   Displays step-by-step tutorials, spoilers, or more information about a topic
+url    https://www.dokuwiki.org/plugin:stepbystep

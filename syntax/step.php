@@ -10,13 +10,21 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
 {
     protected $tagcount = 1;
 
+    // default name and style definitions
+    protected $options = [
+        'collapsible_class'        => ' class="collapsible"',
+        'collapsible_class_active' => ' class="collapsible active"',
+        'content_height'           => '',
+        'content_height_max'       => ' style="max-height: fit-content;"'
+    ];
+
     /**
      * Get plugin and component name
      * @return string
      */
     public function getMode(): string
     {
-        return 'plugin_' . $this->getPluginName() . '_' . $this->getPluginComponent();
+        return sprintf("plugin_%s_%s", $this->getPluginName(), $this->getPluginComponent());
     }
 
     /** @inheritDoc */
@@ -43,13 +51,26 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
     }
 
     /**
+     * accept nesting
+     * @param $mode
+     * @return bool
+     */
+    function accepts($mode)
+    {
+        if ($mode == $this->getmode()) {
+            return true;
+        }
+        return parent::accepts($mode);
+    }
+
+    /**
      * Set the EntryPattern
      * @param string $mode
      */
     public function connectTo($mode)
     {
         $this->Lexer->addEntryPattern(
-            "^#{{$this->tagcount}}:.*?(?=\n.*?^:#{{$this->tagcount}}$)",
+            sprintf('^#{%1$d}:.*?(?=\n.*?^:#{%1$d}$)', $this->tagcount),
             $mode,
             $this->getmode()
         );
@@ -73,13 +94,37 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
      */
     public function handle($match, $state, $pos, Doku_Handler $handler)
     {
-        //var_dump($match);
         switch ($state) {
             case DOKU_LEXER_ENTER :
-                $check = false;
-                $match          = trim(substr($match, $this->tagcount + 1));// returns match after '#{$tagcount}:'
-                $data['title']  = hsc(trim($match));
-                $data['anchor'] = str_replace([':', '.'], '_', cleanID($data['title']));
+                $match = trim(substr($match, $this->tagcount + 1));// returns match after '#{$tagcount}:'
+                $check = sexplode('||', $match, 2);
+                // set default values
+                $data = [
+                    'title'             => '',
+                    'anchor'            => '',
+                    'options'           => [],
+                    'collapsible_class' => $this->options['collapsible_class'],
+                    'content_height'    => $this->options['content_height']
+                ];
+                if ($check[0]) {
+                    $data['title']  = hsc($check[0]);
+                    $data['anchor'] = str_replace([':', '.'], '_', cleanID($data['title']));
+                    $data['anchor'] = substr($data['anchor'], 0, 40);
+                }
+
+                if ($check[1]) {
+                    // pass all options to the renderer
+                    $data['options'] = explode(' ', $check[1]);
+                    // update default values by option
+                    foreach ($data['options'] as $option) {
+                        switch ($option) {
+                            case 'open':
+                                $data['collapsible_class'] = $this->options['collapsible_class_active'];
+                                $data['content_height']    = $this->options['content_height_max'];
+                                break;
+                        }
+                    }
+                }
                 return [$state, $data];
             case DOKU_LEXER_UNMATCHED :
                 return [$state, $match];
@@ -105,14 +150,21 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
         list($state, $indata) = $data;
         switch ($state) {
             case DOKU_LEXER_ENTER :
+                $type          = 'button';
                 $renderer->doc .= '<div class="stepbystep">' . DOKU_LF;
                 if (is_a($renderer, 'renderer_plugin_dw2pdf')) {
-                    $renderer->doc .= '<div id="' . $indata['anchor'] . '" class="steptitle">' . $indata['title'] . '</div>' . DOKU_LF;
-                } else {
-                    $renderer->doc .= '<button id="' . $indata['anchor'] . '" class="collapsible">' . $indata['title'] . '</button>' . DOKU_LF;
+                    $type = 'div';
                 }
-                //$renderer->doc .= '<button class="collapsible"><span class="steptitle">' . $indata['title'] . '</span></button>' . DOKU_LF;
-                $renderer->doc .= '<div class="content">' . DOKU_LF;
+                $renderer->doc .= sprintf(
+                    '<%s id="%s"%s>%s</%s>%s',
+                    $type,
+                    $indata['anchor'],
+                    $indata['collapsible_class'],
+                    $indata['title'],
+                    $type,
+                    DOKU_LF
+                );
+                $renderer->doc .= '<div class="content"' . $indata['content_height'] . '>' . DOKU_LF;
                 break;
             case DOKU_LEXER_UNMATCHED :
                 $renderer->cdata($indata);
@@ -124,5 +176,6 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
         }
         return true;
     }
+
 }
 

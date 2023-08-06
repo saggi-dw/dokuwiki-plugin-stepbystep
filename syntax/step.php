@@ -12,8 +12,8 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
 
     // default name and style definitions
     protected $options = [
-        'collapsible_class'        => ' class="collapsible"',
-        'collapsible_class_active' => ' class="collapsible active"',
+        'collapsible_class'        => ' class="stepbystep_collapsible"',
+        'collapsible_class_active' => ' class="stepbystep_collapsible active"',
         'content_height'           => '',
         'content_height_max'       => ' style="max-height: fit-content;"'
     ];
@@ -164,7 +164,7 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
                     $type,
                     DOKU_LF
                 );
-                $renderer->doc .= '<div class="content"' . $indata['content_height'] . '>' . DOKU_LF;
+                $renderer->doc .= '<div class="stepbystep_content"' . $indata['content_height'] . '>' . DOKU_LF;
                 break;
             case DOKU_LEXER_UNMATCHED :
                 $renderer->cdata($indata);

@@ -2,7 +2,7 @@
 Author:  Swimmer F (https://stackoverflow.com/users/12061972/swimmer-f)
 Link: https://stackoverflow.com/questions/66020524/collapsible-box-not-showing-all-of-my-text-in-html-and-css/66020964#66020964
 */
-var coll = document.getElementsByClassName("collapsible");
+var coll = document.getElementsByClassName("stepbystep_collapsible");
 var i;
 
 for (i = 0; i < coll.length; i++) {

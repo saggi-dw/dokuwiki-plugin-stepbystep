@@ -7,7 +7,7 @@ div.stepbystep {
 
 }
 
-div.stepbystep .collapsible {
+div.stepbystep .stepbystep_collapsible {
     background: @ini_background_neu;
     color: @ini_text;
     cursor: pointer;
@@ -24,25 +24,30 @@ div.stepbystep .collapsible {
 
 }
 
-div.stepbystep .collapsible.active,
-div.stepbystep .collapsible:hover {
+div.stepbystep .stepbystep_collapsible.active,
+div.stepbystep .stepbystep_collapsible:hover {
     background-color: @ini_link;
     color: @ini_background;
 }
 
-div.stepbystep .collapsible:after {
+div.stepbystep .stepbystep_collapsible:after {
     content: '\002B';
-    color: @ini_background;
+    color: @ini_text;
     font-weight: bold;
     float: right;
     margin-left: 5px;
 }
 
-div.stepbystep .collapsible.active:after {
-    content: "\2212";
+div.stepbystep .stepbystep_collapsible:hover:after {
+    color: @ini_background;
 }
 
-div.stepbystep .content {
+div.stepbystep .stepbystep_collapsible.active:after {
+    rotate: 45deg;
+    color: @ini_background;
+}
+
+div.stepbystep .stepbystep_content {
     padding: 0 18px;
     overflow: hidden;
     transition: max-height 0.2s ease-out;

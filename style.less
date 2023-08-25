@@ -4,7 +4,7 @@ Link: https://stackoverflow.com/questions/66020524/collapsible-box-not-showing-a
  */
 
 div.stepbystep {
-
+    --preview: 0;
 }
 
 div.stepbystep .stepbystep_collapsible {
@@ -56,5 +56,18 @@ div.stepbystep .stepbystep_content {
     border: @ini_link;
     border-style: solid;
     border-width: 0px 1px 1px 1px;
-    max-height: 0;
+    max-height: var(--preview);
+    position: relative;
+}
+
+// create a shadow for text not visible at the end of the preview
+div.stepbystep .stepbystep_content:after {
+    position: absolute;
+    display: block;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 15px;
+    background: linear-gradient(transparent, @ini_background);
+    content: '';
 }

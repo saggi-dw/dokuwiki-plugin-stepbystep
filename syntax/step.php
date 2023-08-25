@@ -15,7 +15,8 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
         'collapsible_class'        => ' class="stepbystep_collapsible"',
         'collapsible_class_active' => ' class="stepbystep_collapsible active"',
         'content_height'           => '',
-        'content_height_max'       => ' style="max-height: fit-content;"'
+        'content_height_max'       => ' style="max-height: fit-content;"',
+        'height_preview'           => ' style="--preview: %s;"'
     ];
 
     /**
@@ -104,27 +105,15 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
                     'anchor'            => '',
                     'options'           => [],
                     'collapsible_class' => $this->options['collapsible_class'],
-                    'content_height'    => $this->options['content_height']
+                    'content_height'    => $this->options['content_height'],
+                    'preview'           => ''
                 ];
                 if ($check[0]) {
                     $data['title']  = hsc($check[0]);
                     $data['anchor'] = str_replace([':', '.'], '_', cleanID($data['title']));
                     $data['anchor'] = substr($data['anchor'], 0, 40);
                 }
-
-                if ($check[1]) {
-                    // pass all options to the renderer
-                    $data['options'] = explode(' ', $check[1]);
-                    // update default values by option
-                    foreach ($data['options'] as $option) {
-                        switch ($option) {
-                            case 'open':
-                                $data['collapsible_class'] = $this->options['collapsible_class_active'];
-                                $data['content_height']    = $this->options['content_height_max'];
-                                break;
-                        }
-                    }
-                }
+                $data = $this->checkOptions($check[1], $data);
                 return [$state, $data];
             case DOKU_LEXER_UNMATCHED :
                 return [$state, $match];
@@ -155,6 +144,7 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
                 if (is_a($renderer, 'renderer_plugin_dw2pdf')) {
                     $type = 'div';
                 }
+                // Create the Button/Div e.g.: <button id="anchor"  class="stepbystep_collapsible">title</button>
                 $renderer->doc .= sprintf(
                     '<%s id="%s"%s>%s</%s>%s',
                     $type,
@@ -164,12 +154,14 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
                     $type,
                     DOKU_LF
                 );
-                $renderer->doc .= '<div class="stepbystep_content"' . $indata['content_height'] . '>' . DOKU_LF;
+                $renderer->doc .= '<div class="stepbystep_content"' . $indata['content_height'] . $indata['preview'] . '>' . DOKU_LF;
+                $renderer->doc .= '<p>' . DOKU_LF;
                 break;
             case DOKU_LEXER_UNMATCHED :
                 $renderer->cdata($indata);
                 break;
             case DOKU_LEXER_EXIT :
+                $renderer->doc .= DOKU_LF . '</p>' . DOKU_LF;
                 $renderer->doc .= '</div>' . DOKU_LF;
                 $renderer->doc .= '</div>' . DOKU_LF;
                 break;
@@ -177,5 +169,64 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
         return true;
     }
 
+    /**
+     * check if value of size is a valid length
+     * @param $size
+     * @return string|null
+     */
+    public function checkSize($size): ?string
+    {
+        $size = hsc($size);
+        // check if value of size is a valid length
+        $result = preg_match(
+            '/^(\d*\.?\d)+(|em|ex|ch|rem|vw|vh|vmin|vmax|cm|mm|in|px|pt|pc)$/i',
+            $size,
+            $matches
+        );
+        if (!$result) {
+            return null;
+        }
+        $return_size = $matches[0];
+        // check if a unit is given, add px if not
+        if (preg_match('/^(\d*\.?\d)+$/', $return_size)) {
+            $return_size .= 'px';
+        }
+        return $return_size;
+    }
+
+    /**
+     * check and pass options to the data array
+     * @param $options
+     * @param $data
+     * @return array
+     */
+    public function checkOptions($options, $data): array
+    {
+        if (!$options) {
+            return $data;
+        }
+        // pass all options to the renderer
+        $data['options'] = explode(' ', $options);
+        // update default values by option
+        foreach ($data['options'] as $option) {
+            switch ($option) {
+                case 'open':
+                    $data['collapsible_class'] = $this->options['collapsible_class_active'];
+                    $data['content_height']    = $this->options['content_height_max'];
+                    $data['preview']           = '';
+                    break;
+                case (preg_match('/preview:.*/', $option) ? true : false) :
+                    $preview = sexplode(':', $option, 2);
+                    $size    = $this->checkSize($preview[1]);
+                    if (($preview[1]) && ($size)) {
+                        $data['collapsible_class'] = $this->options['collapsible_class'];
+                        $data['content_height']    = $this->options['content_height'];
+                        $data['preview']           = sprintf($this->options['height_preview'], $size);
+                    }
+                    break;
+            }
+        }
+        return $data;
+    }
 }
 

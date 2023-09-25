@@ -16,7 +16,9 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
         'collapsible_class_active' => ' class="stepbystep_collapsible active"',
         'content_height'           => '',
         'content_height_max'       => ' style="max-height: fit-content;"',
-        'height_preview'           => ' style="--preview: %s;"'
+        'height_preview'           => ' style="--preview: %s;"',
+        'container'                => 'stepbystep',
+        'container-noback'         => 'nobackground-stepbystep'
     ];
 
     /**
@@ -58,7 +60,7 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
      */
     function accepts($mode)
     {
-        if ($mode == $this->getmode()) {
+        if ($mode == $this->getMode()) {
             return true;
         }
         return parent::accepts($mode);
@@ -106,7 +108,8 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
                     'options'           => [],
                     'collapsible_class' => $this->options['collapsible_class'],
                     'content_height'    => $this->options['content_height'],
-                    'preview'           => ''
+                    'preview'           => '',
+                    'container'         => $this->options['container']
                 ];
                 if ($check[0]) {
                     $data['title']  = hsc($check[0]);
@@ -129,7 +132,7 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
      * @param string        $mode     string     output format being rendered
      * @param Doku_Renderer $renderer the current renderer object
      * @param array         $data     data created by handler()
-     * @return  boolean                 rendered correctly?
+     * @return  bool                 rendered correctly?
      */
     public function render($mode, Doku_Renderer $renderer, $data)
     {
@@ -140,7 +143,7 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
         switch ($state) {
             case DOKU_LEXER_ENTER :
                 $type          = 'button';
-                $renderer->doc .= '<div class="stepbystep">' . DOKU_LF;
+                $renderer->doc .= '<div class="' . $indata['container'] . '">' . DOKU_LF;
                 if (is_a($renderer, 'renderer_plugin_dw2pdf')) {
                     $type = 'div';
                 }
@@ -223,6 +226,9 @@ class syntax_plugin_stepbystep_step extends \dokuwiki\Extension\SyntaxPlugin
                         $data['content_height']    = $this->options['content_height'];
                         $data['preview']           = sprintf($this->options['height_preview'], $size);
                     }
+                    break;
+                case 'noframe' :
+                    $data['container'] = $this->options['container-noback'];
                     break;
             }
         }

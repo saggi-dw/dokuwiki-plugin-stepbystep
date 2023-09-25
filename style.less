@@ -3,25 +3,34 @@ Author:  Swimmer F (https://stackoverflow.com/users/12061972/swimmer-f)
 Link: https://stackoverflow.com/questions/66020524/collapsible-box-not-showing-all-of-my-text-in-html-and-css/66020964#66020964
  */
 
-div.stepbystep {
+div[class$="stepbystep"] {
     --preview: 0;
+}
+
+div[class$="stepbystep"] .stepbystep_collapsible {
+    background: @ini_background;
+    color: @ini_text;
+    cursor: pointer;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    height: auto;
+    padding-left: 0px;
+
+}
+
+div.nobackground-stepbystep .stepbystep_collapsible {
+    font-weight: bold;
 }
 
 div.stepbystep .stepbystep_collapsible {
     background: @ini_background_neu;
     color: @ini_text;
-    cursor: pointer;
-    padding: 18px;
-    width: 100%;
-    border: none;
-    text-align: left;
-    outline: none;
-    font-size: 15px;
-    height: auto;
     border: @ini_link;
+    padding: 18px;
     border-style: solid;
     border-width: 1px 1px 0px 1px;
-
 }
 
 div.stepbystep .stepbystep_collapsible.active,
@@ -30,7 +39,12 @@ div.stepbystep .stepbystep_collapsible:hover {
     color: @ini_background;
 }
 
-div.stepbystep .stepbystep_collapsible:after {
+div.nobackground-stepbystep .stepbystep_collapsible:hover {
+    font-weight: bold;
+    color: @ini_link;
+}
+
+div[class$="stepbystep"] .stepbystep_collapsible:after {
     content: '\002B';
     color: @ini_text;
     font-weight: bold;
@@ -47,6 +61,15 @@ div.stepbystep .stepbystep_collapsible.active:after {
     color: @ini_background;
 }
 
+div.nobackground-stepbystep .stepbystep_collapsible:hover:after {
+    color: @ini_link;
+}
+
+div.nobackground-stepbystep .stepbystep_collapsible.active:after {
+    rotate: 45deg;
+    //color: @ini_link;
+}
+
 div.stepbystep .stepbystep_content {
     padding: 0 18px;
     overflow: hidden;
@@ -60,8 +83,18 @@ div.stepbystep .stepbystep_content {
     position: relative;
 }
 
+div.nobackground-stepbystep .stepbystep_content {
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+    background-color: @ini_background;
+    height: auto;
+    max-height: var(--preview);
+    position: relative;
+    margin: 5px 0px 10px 10px;
+}
+
 // create a shadow for text not visible at the end of the preview
-div.stepbystep .stepbystep_content:after {
+div[class$="stepbystep"] .stepbystep_content:after {
     position: absolute;
     display: block;
     bottom: 0;
